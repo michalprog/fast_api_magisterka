@@ -1,16 +1,19 @@
-# This is a sample Python script.
+from fastapi import FastAPI
+from app.config.database import Base, engine
+from app.controllers import (
+    no_database_controller,
+    post_record_controller,
+    mongo_record_controller,
+    mongo_person_controller,
+    post_person_controller,
+)
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+app = FastAPI(title="FastAPI Magisterka")
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# Rejestracja routerów
+app.include_router(no_database_controller.router)
+app.include_router(post_record_controller.router)
+app.include_router(mongo_record_controller.router)
+app.include_router(mongo_person_controller.router)
+app.include_router(post_person_controller.router)
+Base.metadata.create_all(bind=engine)
