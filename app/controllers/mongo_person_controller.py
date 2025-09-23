@@ -13,6 +13,6 @@ def get_all_persons():
 def create_persons(persons: List[Dict]):
     return mongo_person_utils.create_persons(persons)
 
-@router.get("/personStatistics", response_model=List[Statistics])
+@router.put("/personStatistics", response_model=List[Statistics])
 def person_statistics():
     return mongo_person_utils.person_statistics()
