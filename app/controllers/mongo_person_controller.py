@@ -16,3 +16,9 @@ def create_persons(persons: List[Dict]):
 @router.put("/personStatistics", response_model=List[Statistics])
 def person_statistics():
     return mongo_person_utils.person_statistics()
+
+@router.delete("/deleteAll")
+def delete_all_persons():
+
+    deleted_count = mongo_person_utils.delete_all()
+    return {"deleted": deleted_count}

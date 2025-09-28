@@ -1,6 +1,5 @@
 from typing import List, Dict
-from bson.objectid import ObjectId
-from app.config.mongo_database import mongo_record_collection
+
 
 def get_records() -> List[Dict]:
     docs = list(mongo_record_collection.find())
@@ -30,20 +29,40 @@ def create_records(records: List[Dict]) -> List[Dict]:
         rec["id"] = str(inserted_id)
     return records
 
+from typing import List, Dict
+from bson.objectid import ObjectId
+from app.config.mongo_database import mongo_record_collection
+
 def update_records(records: List[Dict]) -> List[Dict]:
-    updated = []
+    updated_records = []
     for record in records:
         record_id = record.get("id")
         if not record_id:
             continue
-        data = {k: v for k, v in record.items() if k != "id"}
-        result = mongo_record_collection.update_one(
-            {"_id": ObjectId(record_id)},
-            {"$set": data}
-        )
-        if result.modified_count > 0:
-            updated.append(record)
-    return updated
+
+        try:
+            object_id = ObjectId(record_id)
+            data = {k: v for k, v in record.items() if k != "id"}
+
+            # Update dokumentu
+            result = mongo_record_collection.update_one(
+                {"_id": object_id},
+                {"$set": data}
+            )
+
+            # Jeśli dokument został znaleziony (niezależnie od tego, czy się zmienił)
+            if result.matched_count > 0:
+                fresh_doc = mongo_record_collection.find_one({"_id": object_id})
+                if fresh_doc:
+                    fresh_doc["id"] = str(fresh_doc["_id"])
+                    fresh_doc.pop("_id", None)
+                    updated_records.append(fresh_doc)
+
+        except Exception as e:
+            print(f" Błąd przy aktualizacji rekordu o id {record_id}: {e}")
+
+    return updated_records
+
 
 def delete_limited_records(limit: int) -> int:
     docs = list(mongo_record_collection.find().limit(limit))

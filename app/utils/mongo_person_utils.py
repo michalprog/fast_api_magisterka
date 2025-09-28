@@ -95,3 +95,7 @@ def person_statistics() -> List[Statistics]:
     # 📌 sortowanie – "all" pierwsze
     stats.sort(key=lambda s: (0 if s.role == "all" else int(s.role)))
     return stats
+def delete_all() -> int:
+
+    result = mongo_person_collection.delete_many({})
+    return result.deleted_count
